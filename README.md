@@ -24,9 +24,8 @@ Every year, millions of students graduate and enter the job market but struggle 
 
 ## 🎬 Live Demo Video
 
-> 📹 **Screen Recording**: [Watch the Demo on Google Drive](YOUR_GOOGLE_DRIVE_LINK_HERE)
+> 📹 **Screen Recording**: [Watch the Demo on Google Drive](https://drive.google.com/file/d/1f_0jYPeLKzKhvZ3yqFtJggz6RQ3w-DSC/view?usp=sharing)
 
-*(Replace with your actual Google Drive link after recording)*
 
 ---
 
