@@ -90,27 +90,48 @@ exports.finalizeEvaluation = async (req, res) => {
 
         // Calculate overall baseline
         const overallScore = Math.round(
-            (scores.resumeScore * 0.25) + 
-            (scores.quizScore * 0.30) + 
-            (scores.communicationScore * 0.25) + 
-            (scores.portfolioScore * 0.20)
+            ((scores.resumeScore || 50) * 0.25) + 
+            ((scores.quizScore || 0) * 0.30) + 
+            ((scores.communicationScore || 50) * 0.25) + 
+            ((scores.portfolioScore || 40) * 0.20)
         );
 
-        const prompt = templates.finalizePrompt({ ...scores, overallScore }, targetRole);
-        const aiResponse = await getGeminiResponse(prompt);
+        let readinessLevel = "Beginner";
+        if (overallScore >= 75) readinessLevel = "Interview Ready";
+        else if (overallScore >= 50) readinessLevel = "Intermediate";
 
-        res.json({ 
-            success: true, 
-            data: {
-                ...aiResponse,
-                overallScore
-            } 
-        });
+        try {
+            const prompt = templates.finalizePrompt({ ...scores, overallScore }, targetRole);
+            const aiResponse = await getGeminiResponse(prompt);
+
+            res.json({ 
+                success: true, 
+                data: {
+                    ...aiResponse,
+                    overallScore
+                } 
+            });
+        } catch (apiError) {
+            console.error("Gemini API Error in Finalize, using fallback:", apiError.message);
+            res.json({
+                success: false,
+                data: {
+                    summary: "You are making good progress. Focus on improving your resume format and adding more details to your GitHub projects.",
+                    readinessLevel,
+                    improvementPlan: [
+                        "Add more metrics and action verbs to your resume.",
+                        "Include proper README files in your GitHub repositories.",
+                        "Practice speaking clearly and pacing your answers during communication."
+                    ],
+                    overallScore
+                }
+            });
+        }
     } catch (error) {
-        console.error(error);
+        console.error("Unexpected Error in Finalize:", error);
         res.json({
             success: false,
             data: { summary: "Error generating final plan.", readinessLevel: "Unknown", improvementPlan: ["Please try again later"], overallScore: 0 }
         });
     }
-}
+};
